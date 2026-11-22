@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Postulantes — {{ job.title }}{% endblock %}
+{% block content %}
+<section class="dashboard-page">
+  <a class="back-link" href="{{ url_for('dashboard') }}">← &nbsp;Volver a mi cuenta</a>
+  <div class="eyebrow"><span class="eyebrow-dot"></span> PERSONAS INTERESADAS</div>
+  <h1>Postulantes a <span class="serif-accent">{{ job.title }}.</span></h1>
+  <p class="form-intro">{{ job.company }} · {{ people|length }} {{ 'postulante' if people|length == 1 else 'postulantes' }}</p>
+  {% if people %}
+    <div class="dashboard-list applicant-list">
+      {% for person in people %}
+      <div class="applicant-card"><span class="company-icon icon-{{ loop.index % 5 }}">{{ person.name[:1]|upper }}</span><div class="applicant-info"><strong>{{ person.name }}</strong><a href="mailto:{{ person.email }}">{{ person.email }}</a>{% if person.message %}<p>{{ person.message }}</p>{% endif %}<span class="application-date">Se postuló el {{ person.created_at[:10] }}</span></div></div>
+      {% endfor %}
+    </div>
+  {% else %}<div class="empty-state"><span class="empty-icon">✳</span><h3>Todavía no hay postulaciones.</h3><p>Cuando alguien se postule, sus datos aparecerán aquí.</p></div>{% endif %}
+</section>
+{% endblock %}

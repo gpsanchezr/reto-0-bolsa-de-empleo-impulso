@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Mi cuenta — Impulso{% endblock %}
+{% block content %}
+<section class="dashboard-page">
+  <div class="eyebrow"><span class="eyebrow-dot"></span> TU ESPACIO EN IMPULSO</div>
+  <h1>Hola, <span class="serif-accent">{{ current_user.name.split(' ')[0] }}.</span></h1>
+  <p class="form-intro">Aquí tienes el resumen de tu actividad.</p>
+  <div class="dashboard-heading"><h2>Mis postulaciones <span class="count-pill">{{ applications|length }}</span></h2><a href="{{ url_for('index') }}" class="text-link">Explorar empleos →</a></div>
+  {% if applications %}
+    <div class="dashboard-list">
+      {% for job in applications %}
+      <a class="dashboard-row" href="{{ url_for('job_detail', job_id=job.id) }}"><span class="company-icon icon-{{ loop.index % 5 }}">{{ job.company[:1]|upper }}</span><span class="dashboard-info"><strong>{{ job.title }}</strong><span>{{ job.company }} · {{ job.location }}</span></span><span class="application-date">Postulación enviada</span><span class="card-arrow">↗</span></a>
+      {% endfor %}
+    </div>
+  {% else %}<div class="empty-inline">Aún no te has postulado a ninguna oferta. <a href="{{ url_for('index') }}">Encuentra la indicada →</a></div>{% endif %}
+  <div class="dashboard-heading posted-heading"><h2>Mis ofertas <span class="count-pill">{{ jobs|length }}</span></h2><a class="button button-dark" href="{{ url_for('create_job') }}">Publicar oferta <span>↗</span></a></div>
+  {% if jobs %}
+    <div class="dashboard-list">
+      {% for job in jobs %}
+      <div class="dashboard-row"><span class="company-icon icon-{{ loop.index % 5 }}">{{ job.company[:1]|upper }}</span><span class="dashboard-info"><a href="{{ url_for('job_detail', job_id=job.id) }}"><strong>{{ job.title }}</strong></a><span>{{ job.company }} · {{ job.location }}</span></span><a class="text-link applicant-link" href="{{ url_for('applicants', job_id=job.id) }}">{{ job.applicant_count }} postulantes →</a></div>
+      {% endfor %}
+    </div>
+  {% else %}<div class="empty-inline">¿Estás buscando talento? <a href="{{ url_for('create_job') }}">Publica tu primera oferta →</a></div>{% endif %}
+</section>
+{% endblock %}

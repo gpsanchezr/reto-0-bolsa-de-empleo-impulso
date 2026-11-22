@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Ofertas de empleo — Impulso{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow"><span class="eyebrow-dot"></span> TU PRÓXIMO CAPÍTULO EMPIEZA AQUÍ</div>
+    <h1>Un trabajo que<br>te <span class="serif-accent">mueva.</span></h1>
+    <p class="hero-copy">Oportunidades reales, equipos increíbles y espacio para crecer. Encuentra el lugar donde tu talento hace la diferencia.</p>
+    <form class="search-bar" action="{{ url_for('index') }}" method="get">
+      <span class="search-icon">⌕</span>
+      <input type="search" name="q" value="{{ search }}" placeholder="Puesto, empresa o ubicación..." aria-label="Buscar empleos">
+      <button class="button button-dark" type="submit">Buscar empleos <span>→</span></button>
+    </form>
+    <div class="hero-note"><span class="avatar-stack"><i>J</i><i>M</i><i>A</i></span><span>Personas encontrando su lugar cada día</span></div>
+  </div>
+  <div class="hero-art" aria-hidden="true">
+    <div class="art-sun"></div><div class="art-arch"></div><div class="art-leaf leaf-one"></div><div class="art-leaf leaf-two"></div>
+    <div class="art-card"><span class="art-card-label">EL MATCH PERFECTO</span><strong>Tu talento<br>tiene lugar.</strong><span class="art-card-arrow">↗</span></div>
+    <span class="art-spark spark-one">✳</span><span class="art-spark spark-two">✳</span>
+  </div>
+</section>
+<section class="jobs-section">
+  <div class="section-heading">
+    <div><div class="eyebrow"><span class="eyebrow-dot"></span> OPORTUNIDADES ABIERTAS</div><h2>{% if search %}Resultados para “{{ search }}”{% else %}Algo bueno te está <span class="serif-accent">esperando.</span>{% endif %}</h2></div>
+    <span class="result-count">{{ jobs|length }} {{ 'oportunidad' if jobs|length == 1 else 'oportunidades' }}</span>
+  </div>
+  {% if jobs %}
+    <div class="job-grid">
+      {% for job in jobs %}
+      <a class="job-card" href="{{ url_for('job_detail', job_id=job.id) }}">
+        <div class="job-card-top"><span class="company-icon icon-{{ loop.index % 5 }}">{{ job.company[:1]|upper }}</span><span class="job-type">{{ job.job_type }}</span></div>
+        <h3>{{ job.title }}</h3>
+        <p class="company-name">{{ job.company }}</p>
+        <div class="job-meta"><span>⌖ &nbsp;{{ job.location }}</span>{% if job.salary %}<span>↗ &nbsp;{{ job.salary }}</span>{% endif %}</div>
+        <div class="card-bottom"><span>Publicado por {{ job.poster_name }}</span><span class="card-arrow">↗</span></div>
+      </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state"><span class="empty-icon">✳</span><h3>No encontramos ofertas por ahora.</h3><p>Prueba con otras palabras o vuelve pronto para descubrir nuevas oportunidades.</p><a class="text-link" href="{{ url_for('index') }}">Ver todas las ofertas →</a></div>
+  {% endif %}
+</section>
+<section class="callout">
+  <div class="callout-star">✳</div><div><div class="eyebrow eyebrow-light">¿BUSCAS A ALGUIEN EXTRAORDINARIO?</div><h2>Tu próximo gran equipo<br>empieza con una oferta.</h2></div>
+  <a class="button button-light" href="{{ url_for('create_job') }}">Publica una vacante <span>↗</span></a>
+</section>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Crear cuenta — Impulso{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <div class="auth-aside"><div class="eyebrow eyebrow-light"><span class="eyebrow-dot"></span> EMPIEZA ALGO NUEVO</div><h1>Hay un lugar<br>para <span class="serif-accent">ti.</span></h1><p>Crea tu cuenta y encuentra oportunidades para dar el siguiente paso.</p><div class="auth-decoration">✳</div></div>
+  <div class="auth-card"><div class="eyebrow"><span class="eyebrow-dot"></span> ES BUEN MOMENTO</div><h2>Crea tu cuenta</h2><p class="form-intro">Solo te tomará un minuto.</p>
+    <form method="post" class="form-stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label>Nombre completo<input type="text" name="name" autocomplete="name" placeholder="¿Cómo te llamas?" maxlength="80" required></label>
+      <label>Correo electrónico<input type="email" name="email" autocomplete="email" placeholder="tu@correo.com" required></label>
+      <label>Contraseña<input type="password" name="password" autocomplete="new-password" placeholder="Al menos 8 caracteres" minlength="8" required></label>
+      <button class="button button-dark button-wide" type="submit">Crear mi cuenta <span>→</span></button>
+    </form>
+    <p class="auth-switch">¿Ya tienes una cuenta? <a href="{{ url_for('login') }}">Inicia sesión</a></p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }} — Impulso{% endblock %}
+{% block content %}
+<section class="detail-page">
+  <a class="back-link" href="{{ url_for('index') }}">← &nbsp;Ver todas las oportunidades</a>
+  <div class="detail-layout">
+    <article class="detail-main">
+      <div class="detail-company"><span class="company-icon icon-2">{{ job.company[:1]|upper }}</span><div><strong>{{ job.company }}</strong><span>Publicado por {{ job.poster_name }}</span></div></div>
+      <div class="eyebrow"><span class="eyebrow-dot"></span> OPORTUNIDAD ABIERTA</div>
+      <h1>{{ job.title }}</h1>
+      <div class="job-meta detail-meta"><span>⌖ &nbsp;{{ job.location }}</span><span>{{ job.job_type }}</span>{% if job.salary %}<span>↗ &nbsp;{{ job.salary }}</span>{% endif %}</div>
+      <div class="detail-description"><h2>Sobre el puesto</h2><p>{{ job.description }}</p></div>
+    </article>
+    <aside class="apply-card">
+      <div class="eyebrow"><span class="eyebrow-dot"></span> DA EL SIGUIENTE PASO</div>
+      <h2>¿Te ves aquí?</h2><p>Cuéntale al equipo por qué esta oportunidad es para ti.</p>
+      {% if not current_user %}
+        <a class="button button-dark button-wide" href="{{ url_for('login', next=request.path) }}">Inicia sesión para postularte <span>→</span></a>
+        <p class="small-note">¿Nuevo en Impulso? <a href="{{ url_for('register') }}">Crea tu cuenta</a></p>
+      {% elif current_user.id == job.user_id %}
+        <div class="owner-note">Esta oferta fue publicada desde tu cuenta.</div>
+        <a class="text-link" href="{{ url_for('applicants', job_id=job.id) }}">Ver postulantes →</a>
+      {% elif applied %}
+        <div class="applied-note">✓ &nbsp;Ya te postulaste a esta oferta. ¡Mucha suerte!</div>
+      {% else %}
+        <form action="{{ url_for('apply', job_id=job.id) }}" method="post" class="form-stack">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <label>Mensaje para el equipo <span class="optional">(opcional)</span><textarea name="message" rows="5" maxlength="1000" placeholder="Comparte brevemente qué te entusiasma de este puesto..."></textarea></label>
+          <button class="button button-dark button-wide" type="submit">Enviar postulación <span>↗</span></button>
+        </form>
+      {% endif %}
+    </aside>
+  </div>
+</section>
+{% endblock %}

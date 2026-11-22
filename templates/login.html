@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Iniciar sesión — Impulso{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <div class="auth-aside"><div class="eyebrow eyebrow-light"><span class="eyebrow-dot"></span> QUÉ BUENO TENERTE AQUÍ</div><h1>Tu próximo paso<br>te está <span class="serif-accent">esperando.</span></h1><p>Vuelve a conectar con oportunidades hechas para ti.</p><div class="auth-decoration">✳</div></div>
+  <div class="auth-card"><div class="eyebrow"><span class="eyebrow-dot"></span> BIENVENIDO DE VUELTA</div><h2>Inicia sesión</h2><p class="form-intro">Accede a tu cuenta para continuar.</p>
+    <form method="post" class="form-stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label>Correo electrónico<input type="email" name="email" autocomplete="email" placeholder="tu@correo.com" required></label>
+      <label>Contraseña<input type="password" name="password" autocomplete="current-password" placeholder="Tu contraseña" required></label>
+      <button class="button button-dark button-wide" type="submit">Iniciar sesión <span>→</span></button>
+    </form>
+    <p class="auth-switch">¿Aún no tienes cuenta? <a href="{{ url_for('register') }}">Regístrate gratis</a></p>
+  </div>
+</section>
+{% endblock %}

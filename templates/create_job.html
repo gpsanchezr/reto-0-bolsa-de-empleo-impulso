@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Publicar una oferta — Impulso{% endblock %}
+{% block content %}
+<section class="form-page">
+  <a class="back-link" href="{{ url_for('index') }}">← &nbsp;Volver a empleos</a>
+  <div class="eyebrow"><span class="eyebrow-dot"></span> CONECTA CON EL TALENTO IDEAL</div>
+  <h1>Publica una <span class="serif-accent">oportunidad.</span></h1>
+  <p class="form-intro">Cuéntanos sobre el puesto y ayuda a alguien a encontrar su próximo gran paso.</p>
+  <form method="post" class="form-stack job-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Nombre del puesto *<input name="title" maxlength="120" placeholder="Ej. Diseñador/a de producto" required></label>
+    <div class="form-row">
+      <label>Empresa *<input name="company" maxlength="100" placeholder="Nombre de la empresa" required></label>
+      <label>Ubicación *<input name="location" maxlength="100" placeholder="Ciudad o remoto" required></label>
+    </div>
+    <div class="form-row">
+      <label>Tipo de empleo *
+        <select name="job_type" required><option value="">Selecciona una opción</option><option>Tiempo completo</option><option>Medio tiempo</option><option>Remoto</option><option>Contrato</option><option>Prácticas</option></select>
+      </label>
+      <label>Salario <span class="optional">(opcional)</span><input name="salary" maxlength="80" placeholder="Ej. $30,000 – $40,000 al mes"></label>
+    </div>
+    <label>Descripción del puesto *<textarea name="description" rows="7" maxlength="5000" placeholder="Describe el rol, las responsabilidades y lo que hace especial a tu equipo..." required></textarea></label>
+    <button class="button button-dark" type="submit">Publicar oferta <span>↗</span></button>
+  </form>
+</section>
+{% endblock %}

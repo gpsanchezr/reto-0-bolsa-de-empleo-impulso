@@ -93,6 +93,78 @@ class JobBoardTests(unittest.TestCase):
         dashboard = self.client.get("/mi-cuenta")
         self.assertIn(b"Mis postulaciones", dashboard.data)
 
+    def test_application_rejects_message_over_1000_chars(self):
+        self.register("Ana", "ana@example.com")
+        self.create_job()
+        with self.app.app_context():
+            import sqlite3
+
+            connection = sqlite3.connect(self.app.config["DATABASE"])
+            job_id = connection.execute("SELECT id FROM jobs").fetchone()[0]
+            connection.close()
+
+        self.post_form("/cerrar-sesion", {})
+        self.register("Luis", "luis@example.com")
+        response = self.post_form(
+            f"/empleos/{job_id}/postular", {"message": "x" * 1001}
+        )
+        self.assertIn(b"El mensaje no puede superar los 1000 caracteres.", response.data)
+
+        with self.app.app_context():
+            connection = sqlite3.connect(self.app.config["DATABASE"])
+            application_count = connection.execute(
+                "SELECT COUNT(*) FROM applications"
+            ).fetchone()[0]
+            connection.close()
+        self.assertEqual(application_count, 0)
+
+    def test_application_message_is_optional_and_accepts_1000_chars(self):
+        self.register("Ana", "ana@example.com")
+        self.create_job()
+        self.post_form(
+            "/publicar",
+            {
+                "title": "Investigador/a de experiencia",
+                "company": "Estudio Verde",
+                "location": "Remoto",
+                "job_type": "Tiempo completo",
+                "salary": "",
+                "description": "Investiga las necesidades de los usuarios.",
+            },
+        )
+        with self.app.app_context():
+            import sqlite3
+
+            connection = sqlite3.connect(self.app.config["DATABASE"])
+            job_ids = [
+                row[0]
+                for row in connection.execute("SELECT id FROM jobs ORDER BY id")
+            ]
+            connection.close()
+
+        self.post_form("/cerrar-sesion", {})
+        self.register("Luis", "luis@example.com")
+        empty_message = self.post_form(
+            f"/empleos/{job_ids[0]}/postular", {"message": "   "}
+        )
+        self.assertIn(b"Postulaci\xc3\xb3n enviada", empty_message.data)
+        max_message = "x" * 1000
+        max_message_response = self.post_form(
+            f"/empleos/{job_ids[1]}/postular", {"message": max_message}
+        )
+        self.assertIn(b"Postulaci\xc3\xb3n enviada", max_message_response.data)
+
+        with self.app.app_context():
+            connection = sqlite3.connect(self.app.config["DATABASE"])
+            stored_messages = connection.execute(
+                "SELECT job_id, message FROM applications ORDER BY job_id"
+            ).fetchall()
+            connection.close()
+        self.assertEqual(
+            stored_messages,
+            [(job_ids[0], ""), (job_ids[1], max_message)],
+        )
+
     def test_csrf_required_for_post(self):
         response = self.client.post("/registro", data={"name": "Ana"})
         self.assertEqual(response.status_code, 400)

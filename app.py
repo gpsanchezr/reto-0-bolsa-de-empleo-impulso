@@ -158,6 +158,8 @@ def create_app(test_config=None):
             flash("No puedes postularte a una oferta que publicaste.", "error")
         except servicios.DuplicateApplication:
             flash("Ya te postulaste a esta oferta.", "info")
+        except servicios.ServiceError as error:
+            flash(str(error), "error")
         else:
             flash("¡Postulación enviada! Mucha suerte.", "success")
         return redirect(url_for("job_detail", job_id=job_id))

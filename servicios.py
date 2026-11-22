@@ -192,10 +192,13 @@ def apply_to_job(job_id, user_id, message):
         raise JobNotFound()
     if job["user_id"] == user_id:
         raise OwnJobApplication()
+    message = message.strip()
+    if len(message) > 1000:
+        raise ServiceError("El mensaje no puede superar los 1000 caracteres.")
     try:
         db.execute(
             "INSERT INTO applications (job_id, user_id, message) VALUES (?, ?, ?)",
-            (job_id, user_id, message.strip()[:1000]),
+            (job_id, user_id, message),
         )
         db.commit()
     except sqlite3.IntegrityError as error:

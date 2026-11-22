@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from dotenv import load_dotenv
+
 from app import create_app
 
 
@@ -25,9 +26,10 @@ class JobBoardTests(unittest.TestCase):
         self.temp_dir.cleanup()
 
     def test_secret_key_is_required(self):
-        with patch.dict(os.environ, {"SECRET_KEY": ""}):
-            with self.assertRaisesRegex(RuntimeError, "SECRET_KEY"):
-                create_app()
+        with patch.dict(os.environ, {"SECRET_KEY": ""}), self.assertRaisesRegex(
+            RuntimeError, "SECRET_KEY"
+        ):
+            create_app()
 
     def post_form(self, path, data):
         with self.client.session_transaction() as session:
@@ -64,7 +66,7 @@ class JobBoardTests(unittest.TestCase):
             "/registro",
             {"name": "Ana", "email": "ana@example.com", "password": "contraseña-segura"},
         )
-        self.assertIn("Ya existe una cuenta".encode(), duplicate.data)
+        self.assertIn(b"Ya existe una cuenta", duplicate.data)
         self.post_form("/cerrar-sesion", {})
         login = self.post_form(
             "/iniciar-sesion", {"email": "ana@example.com", "password": "contraseña-segura"}
@@ -87,9 +89,9 @@ class JobBoardTests(unittest.TestCase):
         first = self.post_form(path, {"message": "Me interesa mucho este puesto."})
         self.assertIn("Postulación enviada".encode(), first.data)
         duplicate = self.post_form(path, {"message": "Intento duplicado."})
-        self.assertIn("Ya te postulaste".encode(), duplicate.data)
+        self.assertIn(b"Ya te postulaste", duplicate.data)
         dashboard = self.client.get("/mi-cuenta")
-        self.assertIn("Mis postulaciones".encode(), dashboard.data)
+        self.assertIn(b"Mis postulaciones", dashboard.data)
 
     def test_csrf_required_for_post(self):
         response = self.client.post("/registro", data={"name": "Ana"})

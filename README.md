@@ -13,11 +13,11 @@ Aplicación web en español para publicar ofertas de empleo y postularse con una
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-$env:SECRET_KEY = "reemplaza-por-una-clave-aleatoria"
+python -c "from pathlib import Path; import secrets; Path('.env').write_text('SECRET_KEY=' + secrets.token_urlsafe(32) + '\n', encoding='utf-8')"
 python app.py
 ```
 
-Abre http://127.0.0.1:5000. La base SQLite se crea automáticamente en `instance\bolsa.db`.
+El comando genera un `.env` local con una clave aleatoria; también puedes copiar `.env.example` a `.env` y sustituir el valor de ejemplo. No compartas ni subas `.env`. Abre http://127.0.0.1:5000. La base SQLite se crea automáticamente en `instance\bolsa.db`.
 
 ## Funcionalidades
 

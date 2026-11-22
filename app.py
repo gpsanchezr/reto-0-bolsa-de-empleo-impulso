@@ -16,7 +16,11 @@ from flask import (
     session,
     url_for,
 )
+from dotenv import load_dotenv
 from werkzeug.security import check_password_hash, generate_password_hash
+
+
+load_dotenv()
 
 
 SCHEMA = """
@@ -50,9 +54,13 @@ CREATE TABLE IF NOT EXISTS applications (
 
 
 def create_app(test_config=None):
+    secret_key = os.environ.get("SECRET_KEY")
+    if not secret_key:
+        raise RuntimeError("SECRET_KEY no está definida. Configura el archivo .env.")
+
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY=os.environ.get("SECRET_KEY", "dev-only-change-this-secret"),
+        SECRET_KEY=secret_key,
         DATABASE=os.path.join(app.instance_path, "bolsa.db"),
     )
     if test_config:

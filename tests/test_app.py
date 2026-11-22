@@ -1,17 +1,21 @@
+import os
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
+from dotenv import load_dotenv
 from app import create_app
 
 
 class JobBoardTests(unittest.TestCase):
     def setUp(self):
+        load_dotenv()
         self.temp_dir = tempfile.TemporaryDirectory()
         self.app = create_app(
             {
                 "TESTING": True,
-                "SECRET_KEY": "test-key",
+                "SECRET_KEY": os.environ.get("SECRET_KEY"),
                 "DATABASE": str(Path(self.temp_dir.name) / "test.db"),
             }
         )
@@ -19,6 +23,11 @@ class JobBoardTests(unittest.TestCase):
 
     def tearDown(self):
         self.temp_dir.cleanup()
+
+    def test_secret_key_is_required(self):
+        with patch.dict(os.environ, {"SECRET_KEY": ""}):
+            with self.assertRaisesRegex(RuntimeError, "SECRET_KEY"):
+                create_app()
 
     def post_form(self, path, data):
         with self.client.session_transaction() as session:

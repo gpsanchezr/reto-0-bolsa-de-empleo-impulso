@@ -165,6 +165,27 @@ class JobBoardTests(unittest.TestCase):
             [(job_ids[0], ""), (job_ids[1], max_message)],
         )
 
+    def test_owner_can_delete_job(self):
+        self.register("Ana", "ana@example.com")
+        self.create_job()
+        with self.app.app_context():
+            import sqlite3
+
+            connection = sqlite3.connect(self.app.config["DATABASE"])
+            job_id = connection.execute("SELECT id FROM jobs").fetchone()[0]
+            connection.close()
+
+        response = self.post_form(f"/empleos/{job_id}/eliminar", {})
+        self.assertIn(b"La oferta se elimin\xc3\xb3.", response.data)
+
+        with self.app.app_context():
+            connection = sqlite3.connect(self.app.config["DATABASE"])
+            job_count = connection.execute(
+                "SELECT COUNT(*) FROM jobs WHERE id = ?", (job_id,)
+            ).fetchone()[0]
+            connection.close()
+        self.assertEqual(job_count, 0)
+
     def test_csrf_required_for_post(self):
         response = self.client.post("/registro", data={"name": "Ana"})
         self.assertEqual(response.status_code, 400)

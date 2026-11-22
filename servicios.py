@@ -229,6 +229,16 @@ def get_owned_job(job_id, user_id):
     ).fetchone()
 
 
+def delete_owned_job(job_id, user_id):
+    db = get_db()
+    cursor = db.execute(
+        "DELETE FROM jobs WHERE id = ? AND user_id = ?",
+        (job_id, user_id),
+    )
+    db.commit()
+    return cursor.rowcount == 1
+
+
 def list_applicants(job_id):
     return get_db().execute(
         """SELECT users.name, users.email, applications.message, applications.created_at

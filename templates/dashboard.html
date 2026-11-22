@@ -17,7 +17,7 @@
   {% if jobs %}
     <div class="dashboard-list">
       {% for job in jobs %}
-      <div class="dashboard-row"><span class="company-icon icon-{{ loop.index % 5 }}">{{ job.company[:1]|upper }}</span><span class="dashboard-info"><a href="{{ url_for('job_detail', job_id=job.id) }}"><strong>{{ job.title }}</strong></a><span>{{ job.company }} · {{ job.location }}</span></span><a class="text-link applicant-link" href="{{ url_for('applicants', job_id=job.id) }}">{{ job.applicant_count }} postulantes →</a></div>
+      <div class="dashboard-row"><span class="company-icon icon-{{ loop.index % 5 }}">{{ job.company[:1]|upper }}</span><span class="dashboard-info"><a href="{{ url_for('job_detail', job_id=job.id) }}"><strong>{{ job.title }}</strong></a><span>{{ job.company }} · {{ job.location }}</span></span><a class="text-link applicant-link" href="{{ url_for('applicants', job_id=job.id) }}">{{ job.applicant_count }} postulantes →</a><form action="{{ url_for('delete_job', job_id=job.id) }}" method="post" class="inline-form"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit" class="button button-dark" aria-label="Eliminar {{ job.title }}">Eliminar</button></form></div>
       {% endfor %}
     </div>
   {% else %}<div class="empty-inline">¿Estás buscando talento? <a href="{{ url_for('create_job') }}">Publica tu primera oferta →</a></div>{% endif %}

@@ -1,4 +1,5 @@
 import inspect
+import sqlite3
 
 from app import create_app
 
@@ -74,3 +75,83 @@ def test_validacion_entradas_ofertas(tmp_path):
     long_title_response = submit_job(long_title_fields)
     assert long_title_response.status_code == 200
     assert b"Revisa la longitud de los campos." in long_title_response.data
+
+
+def test_control_acceso_recursos_ajenos(tmp_path):
+    app = create_app(
+        {
+            "TESTING": True,
+            "DATABASE": str(tmp_path / "test_acceso.db"),
+        }
+    )
+    client = app.test_client()
+
+    def csrf_token():
+        with client.session_transaction() as session:
+            return session["csrf_token"]
+
+    client.get("/")
+    response_a = client.post(
+        "/registro",
+        data={
+            "name": "Usuario A",
+            "email": "usuario-a@example.com",
+            "password": "contraseña-segura",
+            "csrf_token": csrf_token(),
+        },
+    )
+    assert response_a.status_code == 302
+
+    client.get("/publicar")
+    response_job = client.post(
+        "/publicar",
+        data={
+            "title": "Oferta privada de A",
+            "company": "Empresa A",
+            "location": "Remoto",
+            "job_type": "Tiempo completo",
+            "salary": "",
+            "description": "Descripción de la oferta de A.",
+            "csrf_token": csrf_token(),
+        },
+    )
+    assert response_job.status_code == 302
+
+    connection = sqlite3.connect(app.config["DATABASE"])
+    job_id = connection.execute("SELECT id FROM jobs").fetchone()[0]
+    connection.close()
+
+    response_logout = client.post(
+        "/cerrar-sesion",
+        data={"csrf_token": csrf_token()},
+    )
+    assert response_logout.status_code == 302
+
+    client.get("/")
+    response_b = client.post(
+        "/registro",
+        data={
+            "name": "Usuario B",
+            "email": "usuario-b@example.com",
+            "password": "contraseña-segura",
+            "csrf_token": csrf_token(),
+        },
+    )
+    assert response_b.status_code == 302
+    assert client.get("/mi-cuenta").status_code == 200
+
+    response = client.get(f"/empleos/{job_id}/postulantes")
+    assert response.status_code in (403, 404)
+
+    response_delete = client.post(
+        f"/empleos/{job_id}/eliminar",
+        data={"csrf_token": csrf_token()},
+    )
+    assert response_delete.status_code in (403, 404)
+
+    connection = sqlite3.connect(app.config["DATABASE"])
+    job_count = connection.execute(
+        "SELECT COUNT(*) FROM jobs WHERE id = ?", (job_id,)
+    ).fetchone()[0]
+    connection.close()
+    assert job_count == 1

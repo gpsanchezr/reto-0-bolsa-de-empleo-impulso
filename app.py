@@ -180,6 +180,14 @@ def create_app(test_config=None):
         people = servicios.list_applicants(job_id)
         return render_template("applicants.html", job=job, people=people)
 
+    @app.post("/empleos/<int:job_id>/eliminar")
+    @login_required
+    def delete_job(job_id):
+        if not servicios.delete_owned_job(job_id, session["user_id"]):
+            abort(404)
+        flash("La oferta se eliminó.", "success")
+        return redirect(url_for("dashboard"))
+
     return app
 
 
